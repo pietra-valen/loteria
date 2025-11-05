@@ -1,0 +1,80 @@
+<?php
+
+
+function gerarAposta($qtdNumeros, $min, $max) {
+    $numeros = [];
+
+    // repete até ter a quantidade certa de números
+    while (count($numeros) < $qtdNumeros) {
+        $num = rand($min, $max); // gera um número aleatório
+
+        // se ainda não foi sorteado, guarda no array
+        if (!in_array($num, $numeros)) {
+            $numeros[] = $num;
+        }
+    }
+
+    sort($numeros); // coloca em ordem
+    return $numeros;
+}
+
+
+function mostrarAposta($jogo, $qtdNumeros, $valor, $min, $max) {
+    echo "\n--- $jogo ---\n";
+    $quantas = (int) readline("Quantas apostas deseja gerar? ");
+
+    for ($i = 1; $i <= $quantas; $i++) {
+        $aposta = gerarAposta($qtdNumeros, $min, $max);
+        echo "Aposta $i: " . implode(" - ", $aposta) . "\n";
+    }
+
+    $total = $quantas * $valor;
+    echo "Total gasto: R$ " . number_format($total, 2, ',', '.') . "\n";
+}
+
+
+echo "Escolha a loteria:\n";
+echo "1 - Mega-Sena\n";
+echo "2 - Quina\n";
+echo "3 - Lotomania\n";
+echo "4 - Lotofácil\n";
+
+$opcao = (int) readline("Opção: ");
+
+switch ($opcao) {
+    case 1:
+        $qtd = (int) readline("Quantos números (6 a 20)? ");
+        if ($qtd < 6 || $qtd > 20) {
+            echo "Número inválido.\n";
+        } else {
+            mostrarAposta("Mega-Sena", $qtd, 5.00, 1, 60);
+        }
+        break;
+
+    case 2:
+        $qtd = (int) readline("Quantos números (5 a 15)? ");
+        if ($qtd < 5 || $qtd > 15) {
+            echo "Número inválido.\n";
+        } else {
+            mostrarAposta("Quina", $qtd, 2.50, 1, 80);
+        }
+        break;
+
+    case 3:
+        $qtd = 50;
+        mostrarAposta("Lotomania", $qtd, 2.50, 0, 99);
+        break;
+
+    case 4:
+        $qtd = (int) readline("Quantos números (15 a 20)? ");
+        if ($qtd < 15 || $qtd > 20) {
+            echo "Número inválido.\n";
+        } else {
+            mostrarAposta("Lotofácil", $qtd, 3.00, 1, 25);
+        }
+        break;
+
+    default:
+        echo "Opção inválida.\n";
+}
+?>
