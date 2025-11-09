@@ -1,51 +1,66 @@
 <?php
 
+function branco($texto){
 
-function gerarAposta($qtdNumeros, $min, $max) {
+     return "\033[37m$texto\033[0m"; 
+    }
+
+function azul($texto){
+
+     return "\033[34m$texto\033[0m"; 
+    
+    }
+
+function laranja($texto){ 
+    
+    return "\033[33m$texto\033[0m"; 
+
+}
+
+
+function gerarAposta($qtdNumeros, $min, $max)
+{
     $numeros = [];
 
-    // repete até ter a quantidade certa de números
     while (count($numeros) < $qtdNumeros) {
-        $num = rand($min, $max); // gera um número aleatório
-
-        // se ainda não foi sorteado, guarda no array
+        $num = rand($min, $max);
         if (!in_array($num, $numeros)) {
             $numeros[] = $num;
         }
     }
 
-    sort($numeros); // coloca em ordem
+    sort($numeros);
     return $numeros;
 }
 
-
-function mostrarAposta($jogo, $qtdNumeros, $valor, $min, $max) {
-    echo "\n--- $jogo ---\n";
-    $quantas = (int) readline("Quantas apostas deseja gerar? ");
+function mostrarAposta($jogo, $qtdNumeros, $valor, $min, $max)
+{
+    echo "\n" . azul("--- $jogo ---") . "\n";
+    $quantas = (int) readline(laranja("Quantas apostas deseja gerar? "));
 
     for ($i = 1; $i <= $quantas; $i++) {
         $aposta = gerarAposta($qtdNumeros, $min, $max);
-        echo "Aposta $i: " . implode(" - ", $aposta) . "\n";
+        echo laranja("Aposta $i: ") . branco(implode(" - ", $aposta)) . "\n";
     }
 
     $total = $quantas * $valor;
-    echo "Total gasto: R$ " . number_format($total, 2, ',', '.') . "\n";
+    echo azul("Total gasto: ") . laranja("R$ " . number_format($total, 2, ',', '.')) . "\n";
 }
 
+// Menu de opções
+echo azul("Escolha a loteria:\n");
+echo laranja("1") . " - Mega-Sena\n";
+echo laranja("2") . " - Quina\n";
+echo laranja("3") . " - Lotomania\n";
+echo laranja("4") . " - Lotofácil\n";
 
-echo "Escolha a loteria:\n";
-echo "1 - Mega-Sena\n";
-echo "2 - Quina\n";
-echo "3 - Lotomania\n";
-echo "4 - Lotofácil\n";
-
-$opcao = (int) readline("Opção: ");
+$opcao = (int) readline(azul("Opção: "));
 
 switch ($opcao) {
     case 1:
         $qtd = (int) readline("Quantos números (6 a 20)? ");
         if ($qtd < 6 || $qtd > 20) {
-            echo "Número inválido.\n";
+            echo laranja("Número inválido para Mega-Sena.\n");
         } else {
             mostrarAposta("Mega-Sena", $qtd, 5.00, 1, 60);
         }
@@ -54,27 +69,30 @@ switch ($opcao) {
     case 2:
         $qtd = (int) readline("Quantos números (5 a 15)? ");
         if ($qtd < 5 || $qtd > 15) {
-            echo "Número inválido.\n";
+            echo laranja("Número inválido para Quina.\n");
         } else {
             mostrarAposta("Quina", $qtd, 2.50, 1, 80);
         }
         break;
 
     case 3:
-        $qtd = 50;
-        mostrarAposta("Lotomania", $qtd, 2.50, 0, 99);
+        $qtd = (int) readline("Quantos números (sempre 50)? ");
+        if ($qtd != 50) {
+            echo laranja("Na Lotomania, sempre são 50 números.\n");
+        } else {
+            mostrarAposta("Lotomania", $qtd, 2.50, 0, 99);
+        }
         break;
 
     case 4:
         $qtd = (int) readline("Quantos números (15 a 20)? ");
         if ($qtd < 15 || $qtd > 20) {
-            echo "Número inválido.\n";
+            echo laranja("Número inválido para Lotofácil.\n");
         } else {
             mostrarAposta("Lotofácil", $qtd, 3.00, 1, 25);
         }
         break;
 
     default:
-        echo "Opção inválida.\n";
+        echo laranja("Opção inválida.\n");
 }
-?>
