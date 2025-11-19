@@ -1,25 +1,120 @@
 <?php
 
-function branco($texto){
+// ---------------- CORES ----------------
 
-     return "\033[37m$texto\033[0m"; 
-    }
+function branco($texto) {
+    return "\033[37m$texto\033[0m";
+}
 
-function azul($texto){
+function azul($texto) {
+    return "\033[34m$texto\033[0m";
+}
 
-     return "\033[34m$texto\033[0m"; 
-    
-    }
+function laranja($texto) {
+    return "\033[33m$texto\033[0m";
+}
 
-function laranja($texto){ 
-    
-    return "\033[33m$texto\033[0m"; 
-
+function rosa($texto) {
+    return "\033[35m$texto\033[0m";
 }
 
 
-function gerarAposta($qtdNumeros, $min, $max)
-{
+// ---------------- TABELAS DE PREÇOS ----------------
+
+// Mega-Sena (6 a 20)
+$precoMega = [
+    6  => 6.00,
+    7  => 42.00,
+    8  => 168.00,
+    9  => 504.00,
+    10 => 1260.00,
+    11 => 2772.00,
+    12 => 5544.00,
+    13 => 10296.00,
+    14 => 18018.00,
+    15 => 30030.00,
+    16 => 48048.00,
+    17 => 74256.00,
+    18 => 111384.00,
+    19 => 162792.00,
+    20 => 232560.00,
+];
+
+// Quina (5 a 15)
+$precoQuina = [
+    5  => 2.50,
+    6  => 15.00,
+    7  => 52.50,
+    8  => 140.00,
+    9  => 315.00,
+    10 => 630.00,
+    11 => 1155.00,
+    12 => 1980.00,
+    13 => 3217.50,
+    14 => 4950.00,
+    15 => 7425.00,
+];
+
+// Lotofácil (15 a 20)
+$precoLotofacil = [
+    15 => 3.00,
+    16 => 48.00,
+    17 => 408.00,
+    18 => 2448.00,
+    19 => 11628.00,
+    20 => 46512.00,
+];
+
+// Lotomania (sempre 50)
+$precoLotomania = 2.50;
+
+
+// ---------------- FUNÇÕES DE VALOR ----------------
+
+function valorMega($qtd) {
+    global $precoMega;
+    return $precoMega[$qtd];
+}
+
+function valorQuina($qtd) {
+    global $precoQuina;
+    return $precoQuina[$qtd];
+}
+
+function valorLotofacil($qtd) {
+    global $precoLotofacil;
+    return $precoLotofacil[$qtd];
+}
+
+function valorLotomania() {
+    global $precoLotomania;
+    return $precoLotomania;
+}
+
+
+
+// ---------------- FUNÇÕES DE PROBABILIDADE (NOVO!) ----------------
+
+function combinacao($n, $k) {
+    if ($k > $n) return 0;
+    $num = 1;
+    for ($i = 0; $i < $k; $i++) {
+        $num *= ($n - $i);
+        $num /= ($i + 1);
+    }
+    return $num;
+}
+
+function probabilidade($totalNumerosDisponiveis, $qtdEscolhida) {
+    $totalComb = combinacao($totalNumerosDisponiveis, $qtdEscolhida);
+    return 1 / $totalComb;
+}
+
+
+
+// ---------------- GERADOR DE APOSTA ----------------
+
+function gerarAposta($qtdNumeros, $min, $max) {
     $numeros = [];
 
     while (count($numeros) < $qtdNumeros) {
@@ -33,66 +128,83 @@ function gerarAposta($qtdNumeros, $min, $max)
     return $numeros;
 }
 
-function mostrarAposta($jogo, $qtdNumeros, $valor, $min, $max)
-{
-    echo "\n" . azul("--- $jogo ---") . "\n";
-    $quantas = (int) readline(laranja("Quantas apostas deseja gerar? "));
 
-    for ($i = 1; $i <= $quantas; $i++) {
+
+// ---------------- MOSTRAR APOSTAS ----------------
+
+function mostrarAposta($jogo, $qtdNumeros, $valor, $min, $max) {
+
+    echo "\n" . azul("-- $jogo --") . "\n";
+
+    $qtdApostas = (int) readline(laranja("Quantas apostas deseja gerar? "));
+
+    for ($i = 1; $i <= $qtdApostas; $i++) {
         $aposta = gerarAposta($qtdNumeros, $min, $max);
         print laranja("Aposta $i: ") . branco(implode(" - ", $aposta)) . "\n";
     }
 
-    $total = $quantas * $valor;
-    print azul("Total gasto: ") . laranja("R$ " . number_format($total, 2, ',', '.')) . "\n";
+    // cálculo verdadeiro
+    $total = $valor * $qtdApostas;
+    print laranja("\nTotal gasto: R$ " . number_format($total, 2, ',', '.')) . "\n";
+
+    // ---------- PROBABILIDADE (NOVO!) ----------
+    $prob = probabilidade($max, $qtdNumeros);
+
+    echo rosa("\nProbabilidade de acertar TODOS os números: ");
+    echo branco("1 em " . number_format(1 / $prob, 0, ',', '.'));
+    echo "\n";
 }
 
-// Menu de opções
+
+
+// ---------------- MENU ----------------
+
 print azul("Escolha a loteria:\n");
 print laranja("1") . " - Mega-Sena\n";
 print laranja("2") . " - Quina\n";
 print laranja("3") . " - Lotomania\n";
 print laranja("4") . " - Lotofácil\n";
 
-$opcao = (int) readline(azul("Opção: "));
+$opcao = (int) readline("Opção: ");
 
 switch ($opcao) {
-    case 1:
-        $qtd = (int) readline("Quantos números (6 a 20)? ");
-        if ($qtd < 6 || $qtd > 20) {
-            print laranja("Número inválido para Mega-Sena.\n");
-        } else {
-            mostrarAposta("Mega-Sena", $qtd, 5.00, 1, 60);
-        }
-        break;
 
-    case 2:
-        $qtd = (int) readline("Quantos números (5 a 15)? ");
-        if ($qtd < 5 || $qtd > 15) {
-            print laranja("Número inválido para Quina.\n");
-        } else {
-            mostrarAposta("Quina", $qtd, 2.50, 1, 80);
-        }
-        break;
+case 1:
+    $qtd = (int) readline ("Quantos números (6 a 20)? ");
+    if ($qtd < 6 || $qtd > 20) {
+        print laranja("Número inválido para Mega-Sena.\n");
+    } else {
+        mostrarAposta("Mega-Sena", $qtd, valorMega($qtd), 1, 60);
+    }
+    break;
 
-    case 3:
-        $qtd = (int) readline("Quantos números (sempre 50)? ");
-        if ($qtd != 50) {
-            print laranja("Na Lotomania, sempre são 50 números.\n");
-        } else {
-            mostrarAposta("Lotomania", $qtd, 2.50, 0, 99);
-        }
-        break;
+case 2:
+    $qtd = (int) readline("Quantos números (5 a 15)? ");
+    if ($qtd < 5 || $qtd > 15) {
+        print laranja("Número inválido para Quina.\n");
+    } else {
+        mostrarAposta("Quina", $qtd, valorQuina($qtd), 1, 80);
+    }
+    break;
 
-    case 4:
-        $qtd = (int) readline("Quantos números (15 a 20)? ");
-        if ($qtd < 15 || $qtd > 20) {
-            print laranja("Número inválido para Lotofácil.\n");
-        } else {
-            mostrarAposta("Lotofácil", $qtd, 3.00, 1, 25);
-        }
-        break;
+case 3:
+    $qtd = (int) readline("Quantos números (sempre 50)? ");
+    if ($qtd != 50) {
+        print laranja("Na Lotomania, sempre são 50 números.\n");
+    } else {
+        mostrarAposta("Lotomania", 50, valorLotomania(), 0, 99);
+    }
+    break;
 
-    default:
-        print laranja("Opção inválida.\n");
+case 4:
+    $qtd = (int) readline("Quantos números (15 a 20)? ");
+    if ($qtd < 15 || $qtd > 20) {
+        print laranja("Número inválido para Lotofácil.\n");
+    } else {
+        mostrarAposta("Lotofácil", $qtd, valorLotofacil($qtd), 1, 25);
+    }
+    break;
+
+default:
+    print laranja("Opção inválida.\n");
 }
